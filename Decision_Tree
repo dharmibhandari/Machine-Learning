@@ -1,0 +1,166 @@
+# Decision Tree Classification-We want to predict  salary of employee would be more than 50000 or not
+
+# Import  Reqrired Libraries
+
+import numpy as np # linear algebra
+import pandas as pd # data processing
+import matplotlib.pyplot as plt # data visualization
+%matplotlib inline
+import seaborn as sns # statistical data visualization
+
+
+from sklearn.tree import DecisionTreeClassifier #Decision Tree
+from sklearn.model_selection import train_test_split#Train Test Split
+from sklearn import metrics
+from sklearn import tree
+
+
+
+
+# Import Dataset
+
+data=pd.read_csv(r"C:\Users\Urmay\Downloads\dt.csv")
+
+data
+
+data.info()
+
+data.isnull().sum()
+
+target = data['salary_more_then_50000']
+
+input_data = data.drop('salary_more_then_50000',axis='columns')
+
+from sklearn.preprocessing import LabelEncoder
+
+input_data= input_data.apply(LabelEncoder().fit_transform)
+
+input_data
+
+# Train Test Split
+
+X_train, X_test, Y_train, Y_test = train_test_split(input_data,target, test_size = 0.3, random_state = 42)
+
+X_train
+
+X_train.shape
+
+X_test
+
+Y_train.shape
+
+Y_train
+
+Y_test
+
+# Model Initilization
+
+from sklearn import tree
+model = tree.DecisionTreeClassifier()
+
+model.fit(X_train,Y_train)
+
+
+
+model.score(X_train,Y_train)
+
+model.get_depth()
+
+model.score(X_test,Y_test)
+
+y_pred  = model.predict(X_test)
+y_pred
+
+metrics.confusion_matrix(Y_test, y_pred)
+
+from sklearn import tree
+text_representation = tree.export_text(model)
+print(text_representation)
+
+plt.figure(figsize=(50,50))
+
+from sklearn import tree
+
+tree.plot_tree(model,feature_names=input_data.columns,
+                   class_names=['0','1'],
+                   filled=True)
+
+# Prediction
+
+# 0-No Salary is not greater than 50000
+
+model.predict([[0,2,0]])
+
+# actual values
+y_pred
+
+Y_test
+
+# Confusion Matrix
+
+from sklearn import metrics
+
+# confusion matrix,accuracy,classification_report in sklearn
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+
+# confusion matrix
+matrix = confusion_matrix(Y_test,y_pred, labels=[1,0])
+print('Confusion matrix : \n',matrix)
+
+# Accuracy
+
+accuracy = metrics.accuracy_score(Y_test,y_pred)
+
+accuracy
+
+accuracy_percentage = 100 * accuracy
+accuracy_percentage
+
+# Classification Report
+
+report=classification_report(Y_test,y_pred)
+
+print(report)
+
+# Iris Dataset
+
+from sklearn import datasets
+
+# Prepare the data data
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
+
+iris.feature_names
+
+clf = DecisionTreeClassifier(random_state=1234)
+model = clf.fit(X, y)
+
+ext_representation = tree.export_text(clf)
+print(text_representation)
+
+fig = plt.figure(figsize=(25,20))
+_ = tree.plot_tree(clf,
+                   feature_names=iris.feature_names,
+                   class_names=iris.target_names,
+                   filled=True)
+
+param_dict['max_depth']=[3,5,8]
+param_dict['criterion']=["gini","entropy"]
+
+
+
+gini 3   0.89
+gini 5   0.78
+gin
+
+def my_tree(param_dict,df):
+    return best_param
+
+
+
+    best_param['values']=[("gini",5)]
+
+model.get_depth()
