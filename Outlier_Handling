@@ -1,0 +1,254 @@
+# Outliers And Impact On Machine Learning!!
+Which Machine LEarning Models Are Sensitive To Outliers?
+
+Naivye Bayes Classifier--- Not Sensitive To Outliers
+
+SVM-------- Not Sensitive To Outliers
+
+Linear Regression---------- Sensitive To Outliers
+
+Logistic Regression------- Sensitive To Outliers
+
+Decision Tree Regressor or Classifier---- Not Sensitive
+
+Ensemble(RF,XGboost,GB)------- Not Sensitive
+
+KNN--------------------------- Not Sensitive
+
+Kmeans------------------------ Sensitive
+
+Hierarichal------------------- Sensitive
+
+PCA-------------------------- Sensitive
+
+Neural Networks-------------- Sensitive
+
+# Outlier Detection :Normal Distribution
+
+# Using Z score
+
+Formula for Z score = (Observation — Mean)/Standard Deviation
+
+Data point that falls outside of 3 standard deviations. we can use a z score and if the z score falls outside of 2 standard deviation
+
+
+z = (X — μ) / σ
+
+
+
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+result= { 'std' : [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],
+'Score' : [29,10,45,46,68,34,65,89,400,92,96,77,66,69,65,80,77,21,37,42]
+        }
+df =pd.DataFrame(result)
+df
+
+df.Score.skew()
+
+plt.hist(df.Score, bins=20, rwidth=0.8)
+plt.xlabel('Score')
+plt.ylabel('Count')
+plt.show()
+
+df['zscore'] = ( df.Score - df.Score.mean() ) / df.Score.std()
+df.head(20)
+
+df['zscore'].describe()
+
+print(min(df['zscore']),max(df['zscore']))
+
+x=df[df['zscore']>3]
+remove_lst=list(x.index)
+
+df[df['zscore']<-3]
+
+# Removal using 3 standard deviation
+One of the ways we can remove outliers is remove any data points that are beyond 3 standard deviation from mean. Which means we can come up with following upper and lower bounds
+
+upper_limit = df.Score.mean() + 3*df.Score.std()
+upper_limit
+
+lower_limit = df.Score.mean() -3*df.Score.std()
+lower_limit
+
+df[(df.Score>upper_limit) | (df.Score<lower_limit)]
+
+
+# Outlier Detection :For skewed Data Distribution
+# InterQuantile Range
+
+The interquartile range is a measure of where the “middle fifty” is in a data set. Where a range is a measure of where the beginning and end are in a set, an interquartile range is a measure of where the bulk of the values lie.
+
+# 75%- 25% values in a dataset
+
+
+
+## Perform all the steps of IQR
+sorted(df['Score'])
+
+quantile1, quantile3= np.percentile(df['Score'],[25,75])
+
+
+print(quantile1,quantile3)
+
+
+df.Score.describe()
+
+## Find the IQR
+
+iqr=quantile3-quantile1
+print(iqr)
+
+## Find the lower bound value and the higher bound value
+
+lower_bound_val = quantile1 -(1.5 * iqr) 
+upper_bound_val = quantile3 +(1.5 * iqr)
+
+print(lower_bound_val,upper_bound_val)
+
+
+df[(df.Score<lower_bound_val)|(df.Score>upper_bound_val)]
+
+
+# On real Dataset
+
+dataset = pd.read_csv('outlier.csv')
+
+dataset.head()
+
+dataset.describe()
+
+
+plt.hist(dataset.price, bins=20)
+plt.xlabel('Price')
+plt.ylabel('Count')
+plt.show()
+
+
+
+figure=dataset.boxplot(column="price")
+
+
+# Remove data above 99.90% percentile and below 1% percentile rank
+
+
+
+min_thresold, max_thresold = dataset.price.quantile([0.001, 0.999])
+min_thresold, max_thresold
+
+dataset[dataset.price < min_thresold]
+
+
+dataset[dataset.price > max_thresold]
+
+
+# IQR
+
+Q1 = dataset.price.quantile(0.10)
+Q3 = dataset.price.quantile(0.90)
+Q1, Q3
+
+IQR = Q3 - Q1
+IQR
+
+lower_limit = Q1 - 1.5*IQR
+upper_limit = Q3 + 1.5*IQR
+lower_limit, upper_limit
+
+dataset[(dataset.price<lower_limit)|(dataset.price>upper_limit)]
+
+
+# Outlier detection and removal using 3 standard deviation
+
+upper_limit = dataset.price.mean() + 3*dataset.price.std()
+upper_limit
+
+lower_limit = dataset.price.mean() -3*dataset.price.std()
+lower_limit
+
+dataset[(dataset.price>upper_limit) | (dataset.price<lower_limit)]
+
+
+# Outlier detection and removal using Z Score
+
+#one method
+def detect_outliers(data):
+    outliers=[]
+    threshold=3
+    mean = np.mean(data)
+    std =np.std(data)
+    
+    
+    for i in data:
+        z_score= (i - mean)/std 
+        if np.abs(z_score) > threshold:
+            outliers.append(i)
+    return outliers
+
+outlier_pt=detect_outliers(dataset.price)
+outlier_pt
+
+
+#second method
+dataset['z_score'] = ( dataset.price - dataset.price.mean() ) / dataset.price.std()
+dataset.head(5)
+
+dataset[dataset['z_score']>3]
+
+
+dataset[dataset['z_score']<-3]
+
+
+# another example
+
+df = pd.read_csv("weight-height.csv")
+
+
+df.head(10)
+
+plt.hist(df.Height, bins=20, rwidth=0.8)
+plt.xlabel('Height (inches)')
+plt.ylabel('Count')
+plt.show()
+
+# Outlier detection and removal using 3 standard deviation
+
+upper_limit = df.Height.mean() + 3*df.Height.std()
+upper_limit
+
+lower_limit = df.Height.mean() -3*df.Height.std()
+lower_limit
+
+df[(df.Height>upper_limit) | (df.Height<lower_limit)]
+
+
+78 inch which is around 6 ft 6 inch. Now that is quite unusual height. 
+    
+lower end it is 54 inch which is around 4 ft 6 inch.   
+
+df_no_outlier = df[(df.Height<upper_limit) & (df.Height>lower_limit)]
+df_no_outlier.head()
+
+# removal using Z Score
+
+df['zscore'] = ( df.Height - df.Height.mean() ) / df.Height.std()
+df.head(5)
+
+df[df['zscore']>3]
+
+
+df[df['zscore']<-3]
+
+
+df[(df.zscore<-3) | (df.zscore>3)]
+
+
+df_no_outlier = df[(df.zscore>-3) & (df.zscore<3)]
+df_no_outlier.head()
+
+
+
