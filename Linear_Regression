@@ -1,0 +1,141 @@
+# Problem Statement: Given above data build a machine learning model that can predict home prices based on square feet area
+
+# Import the required libraries for Linear Regression
+
+import pandas as pd # for data frame
+import numpy as np # for mathemetical operation
+import matplotlib.pyplot as plt # for vizualization
+%matplotlib inline
+from sklearn.linear_model import LinearRegression #  For regression in Machine Learning
+from sklearn.metrics import r2_score # For Accuracy
+
+# Setting Up Working Directory
+
+import os
+os.getcwd()
+
+os.chdir(r"D:\Infividya")
+
+df=pd.read_csv('regression.csv')
+df
+
+#  Plot the dependent and independent variables
+
+plt.xlabel('area')
+plt.ylabel('price')
+plt.title('Area v/s Price')
+plt.scatter(df.area,df.price,color='red',marker='+')
+plt.show()
+
+
+
+plt.xlabel('area')
+plt.ylabel('price')
+plt.title('Area v/s Price')
+plt.plot(df.area,df.price,color='red',marker='+')
+plt.show()
+
+# Model initialization 
+
+#  divide the data into “attributes” and “labels”.
+# Attributes are the independent variables while labels are dependent variables 
+# whose values are to be predicteddivide the data into “attributes” and “labels”.
+
+
+area=df.drop('price',axis='columns')
+area
+
+price=df.price
+price
+
+# Model Intilization
+
+# Making an object names regression_model 
+
+regression_model = LinearRegression() 
+
+# Fit the data(train the model-independent,dependent variable-target variable) 
+
+
+# always keep the indepent variable first and then dependent varible
+
+# fit function for training the model
+
+regression_model.fit(area,price) 
+
+# Predict price of home with 3000 sq ft and 5500 sq ft
+
+
+#Predict functio to predict the price for given area
+
+price_predicted = regression_model.predict([[3000]]) 
+price_predicted
+
+# y=mx+b
+
+3000*135.78767123+180616.43835616432
+
+price_predicted_2 = regression_model.predict(5500) 
+price_predicted_2
+
+price_predicted_3 = regression_model.predict(4000) 
+price_predicted_3
+
+# Slope and Intercept
+
+print('Slope:' ,regression_model.coef_) 
+print('Intercept:', regression_model.intercept_) 
+ 
+
+price_predicted=regression_model.predict(5500)
+price_predicted
+
+price_predicted=regression_model.predict(area)
+price_predicted
+
+df.price
+
+# Model evaluation 
+
+r2=r2_score(price,price_predicted)
+r2
+
+# Print Values
+
+print('Slope:' ,regression_model.coef_) 
+print('Intercept:', regression_model.intercept_) 
+print('R2 score: ', r2) 
+
+# Our regression line has fit -96% accuracy of the model is 96%
+
+# Show the fit line on preicted values
+
+plt.xlabel('area')
+plt.ylabel('price')
+plt.scatter(df.area,df.price,color='red',s=10)
+
+
+# Predicted value
+plt.scatter(df.area,price_predicted,color='green',marker='+')
+plt.show()
+
+
+
+
+
+# Generate CSV file with list of home price predictions¶
+
+area_df = pd.read_csv('area.csv')
+area_df
+
+p=regression_model.predict(area_df)
+p
+
+# Add Price column 
+
+area_df['prices']=p
+area_df
+
+# Export csv file to directory
+
+area_df.to_csv("priceprediction.csv")
