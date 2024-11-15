@@ -1,0 +1,541 @@
+# Airfare Price Prediction
+
+Statement of Issue 
+It can be hard to guess airline ticket rates, we might see a fare today, find out the price of the same flight tomorrow, it's going to be a different story. We may have heard travelers sometimes complain that the costs of airline fares are too volatile. As data scientists, we can show that something can be expected provided the correct data. 
+
+FEATURES: Airline: The name of the airline.
+
+Date_of_Journey: The date of the journey
+
+Source: The source from which the service begins.
+
+Destination: The destination where the service ends.
+
+Route: The route taken by the flight to reach the destination.
+
+Dep_Time: The time when the journey starts from the source.
+
+Arrival_Time: Time of arrival at the destination.
+
+Duration: Total duration of the flight.
+
+Total_Stops: Total stops between the source and destination.
+
+Additional_Info: Additional information about the flight
+
+Price: The price of the ticket
+
+!pip install holidays
+
+import holidays
+india_holidays = holidays.India(years=2020)
+for date, occasion in india_holidays.items():
+   # printing date and occasion
+   print(f'{date} - {occasion}')
+
+import os
+os.chdir(r"E:\FingerTips\Python")
+import pandas as pd
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import warnings
+warnings.filterwarnings('ignore')
+sns.set()
+
+# Importing dataset
+
+df = pd.read_excel("flight_fare.xlsx")
+
+# set max coulmns to None so we can see all columns from dataset
+
+pd.set_option('display.max_columns', None)
+
+# show the first five rows
+
+df.head()
+
+# Chech basic information of dataset
+
+df.info()
+
+# Check the value counts of Duration column
+
+df["Duration"].value_counts()
+
+df["Additional_Info"].value_counts()
+
+# check the count of null values in dataset column
+
+df.isnull().sum()
+
+# check the unique values in Route counts
+
+#df['Route'].unique()
+
+# check unique value in Total_Stops
+
+df['Total_Stops'].unique()
+
+# There is only one value in Total_Stops & Route so we can drop null value from daaset
+
+
+
+df.dropna(inplace = True)
+
+df.isnull().sum()
+
+df.head()
+
+df.shape
+#df.tail()
+
+df.head(10)
+
+# Now we extract  day values and month values from Date_of_Journey and create two new columns Journey_day &  Journey_month 
+
+x=pd.to_datetime(df["Date_of_Journey"],format="%d/%m/%Y")
+print(x)
+#print(type(x[0]))
+
+print(x.dt.day)
+
+df["Journey_day"] = pd.to_datetime(df.Date_of_Journey, format="%d/%m/%Y").dt.day
+
+df["Journey_month"] = pd.to_datetime(df["Date_of_Journey"], format = "%d/%m/%Y").dt.month
+
+df.head()
+
+df["Source"].value_counts()     #5
+
+df["Destination"].value_counts()    #6
+
+df["Total_Stops"].value_counts()  #5
+
+df["Airline"].value_counts()   #12
+
+# so after we create two new column from date_of_journey , now we drop Date_of_Journey column from dataset
+
+
+df.drop(["Date_of_Journey"], axis = 1, inplace = True)
+
+# same things we have do with Dep_time column , we create two new column Dep_hour and Dep_min from extract hour and min from Dep_Time
+
+
+df["Dep_hour"] = pd.to_datetime(df["Dep_Time"]).dt.hour
+
+df["Dep_min"] = pd.to_datetime(df["Dep_Time"]).dt.minute
+
+df.drop(["Dep_Time"], axis = 1, inplace = True)
+
+df.head()
+
+# Similar to Date_of_Journey we can extract values from Arrival_Time
+
+
+
+# Extracting Hours
+df["Arrival_hour"] = pd.to_datetime(df.Arrival_Time).dt.hour
+
+# Extracting Minutes
+df["Arrival_min"] = pd.to_datetime(df.Arrival_Time).dt.minute
+
+# Now we can drop Arrival_Time as it is of no use
+df.drop(["Arrival_Time"], axis = 1, inplace = True)
+
+df.head()
+
+# check the all the values in Duration 
+
+
+duration = list(df["Duration"])
+duration
+
+for i in range(len(duration)):
+    if len(duration[i].split()) == 1:
+        #print(duration[i])
+        if "h" in duration[i]:
+            duration[i]= duration[i] + ' 0m'
+        else:
+            duration[i]= '0h ' + duration[i] 
+
+duration
+
+# now create loop for check duration contains only hour min and if yes add min or hour in it
+
+print(type(duration))
+#for i in range(len(duration)):
+#   if(duration[1])
+print(duration[2].split())
+print(len(duration[2].split()))
+
+#for i in range(len(duration)):
+if(len(duration[2].split())!=2):
+    print("yes")
+    if("m" in duration[2].split()[0]):
+        print("yoo")
+else:
+    print("no")
+
+for i in range(len(duration)):
+    if len(duration[i].split()) != 2:    # Check if duration contains only hour or mins
+        if "h" in duration[i]:
+            duration[i] = duration[i].strip() + " 0m"   # Adds 0 minute
+        else:
+            duration[i] = "0h " + duration[i]           # Adds 0 hour
+            
+
+duration
+
+# now Extract hour and min from duration column and create two new column Duration_hours & Duration_mins
+
+            
+duration_hours = []
+duration_mins = []
+for i in range(len(duration)):
+    duration_hours.append(int(duration[i].split(sep = "h")[0]))    # Extract hours from duration
+    duration_mins.append(int(duration[i].split(sep = "m")[0].split()[-1]))   # Extracts only minutes from duration
+
+# Adding duration_hours and duration_mins list to train_data dataframe
+
+df["Duration_hours"] = duration_hours
+df["Duration_mins"] = duration_mins
+
+# Now drop Duration column
+
+df.drop(["Duration"], axis = 1, inplace = True)
+
+df.head()
+
+## converting hour to min and adding only one column of total journey_min
+
+dummy = pd.DataFrame(list(zip(duration_hours, duration_mins)),
+               columns =['duration_hours', 'duration_mins'])
+
+print(dummy.head())
+
+dummy["total_jmin"]=dummy["duration_hours"]*60 +dummy["duration_mins"]
+
+
+print(dummy.head())
+df["total_jmin"]=dummy["duration_hours"]*60 +dummy["duration_mins"]
+
+print(df.head())
+
+---
+
+## Handling Categorical Data
+
+
+
+# check the value counts in Airline
+
+df["Airline"].value_counts()
+
+# Display price according to Airline 
+
+x=pd.DataFrame(df.groupby('Airline')['Price'].mean())
+x["company"]=x.index
+print(x.head())
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+p=sns.barplot(x="company", y="Price", data=x)
+plt.xticks(rotation=90)
+plt.show()
+
+df.groupby('Airline')['Price'].mean().plot(figsize=(20,10))
+
+# here we can say that jet airways price higher than any onther airline
+
+# chech the average price according to Airline 
+
+
+sns.catplot(y = "Price", x = "Airline", data = df.sort_values("Price", ascending = False), kind="boxen", height = 6, aspect = 3)
+plt.show()
+
+# now we hace to create dummy data for Categorical 
+
+# Airline is Nominal Categorical data we will perform OneHotEncoding
+
+
+Airline = df[["Airline"]]
+
+Airline = pd.get_dummies(Airline, drop_first= True)
+
+Airline.head()
+
+# check the Source values counts 
+
+df["Source"].value_counts()
+
+# display average price according to source 
+
+df.groupby('Source')['Price'].mean().plot(figsize=(20,10))
+
+# Source vs Price
+
+sns.catplot(y = "Price", x = "Source", data = df.sort_values("Price", ascending = False), kind="boxen", height = 4, aspect = 3)
+plt.show()
+
+# Source is Nominal Categorical data we will perform OneHotEncoding
+
+
+Source = df[["Source"]]
+
+Source = pd.get_dummies(Source, drop_first= True)
+
+Source.head()
+
+# check Destination value counts
+
+df["Destination"].value_counts()
+
+# Destination is Nominal Categorical data we will perform OneHotEncoding
+
+
+Destination = df[["Destination"]]
+
+Destination = pd.get_dummies(Destination, drop_first = True)
+
+Destination.head()
+
+# check Route column
+
+df["Route"]
+
+# Drop Route and Additional_Info columns because its unrelevant
+
+
+df.drop(["Route", "Additional_Info"], axis = 1, inplace = True)
+
+df["Total_Stops"].value_counts()
+
+# Display Average price of all Total_Stops
+
+df.groupby('Total_Stops')['Price'].mean().plot(figsize=(20,10))
+
+sns.catplot(y = "Price", x = "Total_Stops", data = df.sort_values("Price", ascending = False), kind="boxen", height = 4, aspect = 3)
+plt.show()
+
+# Now replace categorical value in Total_stop with numeric value by manually
+
+
+df.replace({"non-stop": 0, "1 stop": 1, "2 stops": 2, "3 stops": 3, "4 stops": 4}, inplace = True)
+
+df.head()
+
+# Now concatenate all dummy data which we created with our orignal dataset 
+
+# Concatenate dataframe --> train_data + Airline + Source + Destination
+
+df = pd.concat([df, Airline, Source, Destination], axis = 1)
+
+df.head()
+
+# Drop Categorical columns from dataset 
+
+df.drop(["Airline", "Source", "Destination"], axis = 1, inplace = True)
+
+df.head()
+
+df.shape
+
+## Feature Selection
+
+
+
+df.shape
+
+# Check all columns from dataset
+
+df.columns
+
+# Create target and features set  
+
+X = df.drop('Price',axis=1)
+y = df.Price
+
+X.head()
+
+# Finds correlation between Independent and dependent attributes
+
+df.corr()
+
+
+plt.figure(figsize = (30,30))
+sns.heatmap(df.corr(), annot = True, cmap = "RdYlGn")
+
+plt.show()
+
+# Find the important Featuresn  using ExtraTreesRegressor
+
+
+from sklearn.ensemble import ExtraTreesRegressor
+selection = ExtraTreesRegressor()
+selection.fit(X, y)
+
+# print all features importances
+
+print(selection.feature_importances_)
+
+# plot graph of feature importances for better visualization
+
+
+
+plt.figure(figsize = (12,8))
+feat_importances = pd.Series(selection.feature_importances_, index=X.columns)
+feat_importances.nlargest(20).plot(kind='barh')
+plt.show()
+
+
+# create training and testing data 
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
+
+# Apply Linear regression on training dataset
+
+from sklearn.linear_model import LinearRegression
+
+model_li = LinearRegression()
+model_li.fit(X_train,y_train)
+
+# print trainging and testing score
+
+model_li.score(X_train,y_train)
+
+model_li.score(X_test,y_test)
+
+# How try all diffrent regression algorith and find the testing score
+
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.ensemble import RandomForestRegressor
+from xgboost import XGBRFRegressor
+from sklearn.ensemble import AdaBoostRegressor
+from sklearn.svm import SVR
+
+model = [DecisionTreeRegressor,SVR,RandomForestRegressor,KNeighborsRegressor,AdaBoostRegressor,XGBRFRegressor]
+
+for mod in model:
+    reg = mod()
+    reg = reg.fit(X_train,y_train)
+    print(mod , 'accuracy',reg.score(X_test,y_test))
+
+# Now apply Kflod and cross validation technique
+
+from sklearn.model_selection import KFold,cross_val_score
+
+models = []
+models.append(('KNN', KNeighborsRegressor()))
+models.append(('CART', DecisionTreeRegressor()))
+models.append(('RF', RandomForestRegressor()))
+models.append(('SVM', SVR()))
+models.append(('AdaBoost', AdaBoostRegressor()))
+models.append(('XGB', XGBRFRegressor()))
+
+
+results = []
+names = []
+for name,model in models:
+    kfold = KFold(n_splits=10)
+    cv_result =cross_val_score(model,X_train,y_train,cv=kfold)
+    names.append(name)
+    results.append(cv_result)
+for i in range(len(names)):
+    print(names[i],results[i].mean())
+
+# Here we see RandomForestRegressor gives us best score so we can use RandomForest Regressor algorithm
+
+from sklearn.ensemble import RandomForestRegressor
+reg_rf = RandomForestRegressor()
+reg_rf.fit(X_train, y_train)
+
+y_pred = reg_rf.predict(X_test)
+
+reg_rf.score(X_train, y_train)
+
+reg_rf.score(X_test, y_test)
+
+# Perform Hyper-prameter tuning using RandomizedSearchCV
+
+from sklearn.model_selection import RandomizedSearchCV
+
+
+# create list for all possible parameter
+
+
+n_estimators = [int(x) for x in np.linspace(start = 100, stop = 1200, num = 12)]
+max_features = ['auto', 'sqrt']
+max_depth = [int(x) for x in range(5, 30, 5)]
+min_samples_split = [2, 5, 10, 15, 100]
+min_samples_leaf = [1, 2, 5, 10]
+
+random_grid = {'n_estimators': n_estimators,
+               'max_features': max_features,
+               'max_depth': max_depth,
+               'min_samples_split': min_samples_split,
+               'min_samples_leaf': min_samples_leaf}
+
+# Random search of parameters, using 5 fold cross validation and  search across 100 different combinations
+
+
+
+rf_random = RandomizedSearchCV(estimator = reg_rf, 
+                               param_distributions = random_grid,
+                               scoring='neg_mean_squared_error', 
+                               n_iter = 10, cv = 5,
+                               verbose=2,
+                               random_state=42, n_jobs = 1)
+
+rf_random.fit(X_train,y_train)
+
+rf_random.best_params_
+
+# compare y_test and y_pred value using distplot
+
+sns.distplot(y_test-y_pred)
+plt.show()
+
+# And scatter plot
+
+
+plt.scatter(y_test, y_pred, alpha = 0.5)
+plt.xlabel("y_test")
+plt.ylabel("y_pred")
+plt.show()
+
+# Model Evalution 
+
+from sklearn.metrics import mean_absolute_error,mean_squared_error,r2_score
+
+
+# check mean_absolute_error
+
+mean_absolute_error(y_test, y_pred)
+
+# check mean_squared_error
+
+mean_squared_error(y_test, y_pred)
+
+# check r2_score
+
+r2_score(y_test, y_pred)
+
+# Saving the model
+
+import pickle
+file = open('flight_predictor.pkl', 'wb')
+
+# dump information to that file
+pickle.dump(rf_random, file)
+
+## Load the same model and Pedict
+
+model = open('flight_predictor.pkl','rb')
+forest = pickle.load(model)
+y_prediction =forest.predict(X_test)
+metrics.r2_score(y_test,y_prediction)
