@@ -1,0 +1,74 @@
+# Problem Statement-Predicting if a customer will buy credit card  using Naive bayes
+
+# step 1 -Import required libraries
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+%matplotlib inline
+import seaborn as sns
+
+# Step-2 Import dataset
+
+df = pd.read_csv("creditcard.csv")
+
+# In realtime also you can get dataset without headers
+
+df.head()
+
+df.info()
+
+df.describe()
+
+df = df.drop(['Time'],axis=1)
+
+
+# Data Scaling
+
+from sklearn.preprocessing import StandardScaler
+df['scaled_Amount'] = StandardScaler().fit_transform(df['Amount'].values.reshape(-1,1))
+df = df.drop(['Amount'],axis=1)
+
+df.head()
+
+# Model Intialization
+
+X = df.drop(['Class'],axis = 1)
+y =df.Class
+
+# Training Dataset
+
+from sklearn.model_selection import train_test_split
+
+X_train , X_test , y_train , y_test = train_test_split(X,y,test_size = 0.2)
+
+X_train.shape , y_train.shape
+
+from sklearn.naive_bayes import GaussianNB
+
+model = GaussianNB()
+model.fit(X_train,y_train)
+
+model.score(X_train,y_train)
+
+
+model.score(X_test,y_test)
+
+
+model.predict(X_test[0:5])
+
+
+y_test[:5]
+
+model.predict_proba(X_test[:5])
+
+
+y_pred = model.predict(X_test)
+
+y_pred
+
+from sklearn.metrics import accuracy_score, confusion_matrix
+
+confusion_matrix(y_test,y_pred)
+
+accuracy_score(y_test,y_pred)
