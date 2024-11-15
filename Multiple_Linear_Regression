@@ -1,0 +1,168 @@
+# Case Study/Project_Multiple Linear Regression: Given below with Used Car data build a machine learning model that can predict Sell Price based on different features ex-Mileage and Age of Cars
+
+# Training And Testing Available Data
+We have a dataset containing prices of used cars. We are going to analyze this dataset and build a prediction function that can predict a price by taking mileage and age of the car as input. We will use sklearn train_test_split method to split training and testing dataset
+
+import os
+os.getcwd()
+
+# Import the required libraries for Linear Regression¶
+
+
+import numpy as np # for data frame
+import pandas as pd # for mathemetical operation
+import matplotlib.pyplot as plt # for vizualization
+%matplotlib inline
+import seaborn as sns
+from sklearn.linear_model import LinearRegression #  For regression in Machine Learning
+from sklearn.metrics import r2_score # For Accuracy
+
+df=pd.read_csv(r"D:\Infividya\multiple_linear_regression.csv")
+df.shape
+
+df.head()
+
+#shape function show count of rows and column
+df.shape
+
+# Car Mileage Vs Sell Price 
+
+# Columns in dataset
+
+df.columns
+
+# To check linearity btwn Mileage and sales price
+
+plt.scatter(df['Mileage'],df['Sell Price($)'])
+
+# # To check linearity btwn Age and sales price
+
+plt.scatter(df['Age(yrs)'],df['Sell Price($)'])
+
+# Looking at above two scatter plots, using linear regression model makes sense as we can clearly see a linear relationship between our dependant (i.e. Sell Price) and independant variables (i.e. car age and car mileage)
+
+
+
+df.corr()['Sell Price($)']
+
+# Split data in training and testing
+
+The approach we are going to use here is to split available data in two sets
+
+Training: We will train our model on this dataset Testing: We will use this subset to make actual predictions using trained model
+
+The reason we don't use same training set for testing is because our model has seen those samples before, using same samples for making predictions might give us wrong impression about accuracy of our model. It is like you ask same questions in exam paper as you tought the students in the class.
+
+
+X=df[['Mileage', 'Age(yrs)']]
+X
+X.shape
+
+X.head()
+
+Y=df[['Sell Price($)']]
+Y
+Y.shape
+
+Y.head()
+
+#random_state Controls the shuffling applied to the data before applying the split
+
+Random_state can be 0 or 1 or any other integer. It should be the same value if you want to validate your processing over multiple runs of the code.The random_state parameter is used for initializing the internal random number generator, which will decide the splitting of data into train and test indices in your case
+
+If random_state is None or np.random, then a randomly-initialized RandomState object is returned.
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,Y_train,Y_test=train_test_split(X,Y,test_size=0.2,random_state=20)
+
+X_train
+
+X_train.shape
+
+
+len(X_train)
+
+X_test
+
+len(X_test)
+
+X_train.shape
+
+X_test.shape
+
+Y_train
+
+Y_train.shape
+
+Y_test
+
+Y_test.shape
+
+# Model Intilization
+
+from sklearn.linear_model import LinearRegression
+
+regression_model=LinearRegression()
+
+regression_model.fit(X_train,Y_train)
+
+X_test
+
+# Prediction of price for test data(mileae,age) by giving X_test in predict function
+
+
+Predicted_Price=regression_model.predict(X_test)
+Predicted_Price
+
+# Actual price -we can see there is not much difference in actual price in test data and predicted_price by regression model
+
+Y_test
+
+# Accuracy By score metod it will use X_test and predict the predicted_price and then compare this against Y_test values and tell us the accuracy
+
+regression_model.score(X_test,Y_test)
+
+# Model Evaluation
+
+from sklearn.metrics import mean_squared_error,r2_score,mean_absolute_error
+
+mse=mean_squared_error(Y_test,Predicted_Price)
+r2 = r2_score(Y_test,Predicted_Price) 
+
+print('Slope:' ,regression_model.coef_) 
+print('Intercept:', regression_model.intercept_) 
+print('Root mean squared error: ', mse) 
+print('R2 score: ', r2) 
+
+from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
+
+# Regularization
+
+Regularisation is a technique used to reduce the errors by fitting the function appropriately on the given training set and avoid overfitting.
+
+
+# Ridge Regression
+
+alpha = Regularization strength; must be a positive float. Regularization improves the conditioning of the problem and reduces the variance of the estimates. Larger values specify stronger regularization. max_iter : Maximum number of iterations for conjugate gradient solver.
+
+ridge_reg= Ridge(alpha=50, max_iter=100,)
+ridge_reg.fit(X_train, Y_train)
+
+ridge_reg.score(X_test, Y_test)
+
+ridge_reg.score(X_train,Y_train)
+
+# Lasso Regression
+
+#To ignore warning
+import warnings
+warnings.filterwarnings('ignore')
+
+lasso_reg = Lasso(alpha=50, max_iter=100)
+lasso_reg.fit(X_train,Y_train)
+
+lasso_reg.score(X_test,Y_test)
+
+
+lasso_reg.score(X_train,Y_train)
