@@ -1,0 +1,196 @@
+# Problem Statement-Predicting if a person have heart disease using Support Vector machine
+
+# step 1 -Import required libraries
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# step 2 = read Data
+
+df = pd.read_csv(r"C:\Users\Urmay\Downloads\svm_data.csv")
+
+df.head()
+
+df.info()
+
+df.describe()
+
+# Draw pairplot for dataset
+
+sns.pairplot(df)
+
+df.columns
+
+# check the null value
+
+df.isnull().sum()
+
+# create features and target data
+
+X = df.drop(['target'], axis=1)
+
+y = df['target']
+
+# Divide into training and testing data
+
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
+
+# check the shape of X_train and X_test
+
+X_train.shape, X_test.shape
+
+# Without scaling
+
+# import SVC classifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+
+
+
+# instantiate classifier with default hyperparameters
+svc=SVC() 
+svc.fit(X_train,y_train)
+
+# make predictions on test set
+y_pred=svc.predict(X_test)
+
+
+print('Model accuracy score  without scaling  {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
+
+# Feature Scaling 
+
+
+#create column list
+col = X_train.columns
+
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+
+X_train = scaler.fit_transform(X_train)
+
+X_test = scaler.transform(X_test)
+
+# convert into dataframe
+
+# create dataframe and give columns name
+X_train = pd.DataFrame(X_train, columns=[col])
+X_test = pd.DataFrame(X_test, columns=[col])
+X_train.head()
+
+# Run SVM with default hyperparameters 
+
+# import SVC classifier
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+# instantiate classifier with default hyperparameters
+svc=SVC() 
+svc.fit(X_train,y_train)
+
+# make predictions on test set
+y_pred=svc.predict(X_test)
+
+
+print('Model accuracy score rbf  {0:0.4f}'. format(accuracy_score(y_test, y_pred)))
+
+# Run SVM with c  =100
+
+C : float, optional (default=1.0)
+    Regularization parameter. The strength of the regularization is
+    inversely proportional to C. Must be strictly positive. The penalty
+    is a squared l2 penalty.
+
+# instantiate classifier with rbf kernel and C=100
+svc_1=SVC(C=100) 
+
+
+# fit classifier to training set
+svc_1.fit(X_train,y_train)
+
+
+# make predictions on test set
+y_pred_rbf=svc_1.predict(X_test)
+
+
+# compute and print accuracy score
+print('Model accuracy score with rbf and c= 100  : {0:0.4f}'. format(accuracy_score(y_test, y_pred_rbf)))
+
+
+#  Run SVM with linear kernel 
+
+
+# kernel : string, optional (default='rbf')
+    Specifies the kernel type to be used in the algorithm.
+    It must be one of 'linear', 'poly', 'rbf', 'sigmoid', 'precomputed' or
+    a callable.
+    If none is given, 'rbf' will be used. If a callable is given it is
+    used to pre-compute the kernel matrix from data matrices; that matrix
+    should be an array of shape ``(n_samples, n_samples)
+
+# instantiate classifier with linear kernel and C=1.0
+linear_svc=SVC(kernel='linear', C=1.0) 
+
+
+# fit classifier to training set
+linear_svc.fit(X_train,y_train)
+
+
+# make predictions on test set
+y_pred_lin=linear_svc.predict(X_test)
+
+
+# compute and print accuracy score
+print('Model accuracy score with linear kernel : {0:0.4f}'. format(accuracy_score(y_test, y_pred_lin)))
+
+# Run SVM with polynomial kernel 
+
+# instantiate classifier with polynomial kernel and C=1.0
+poly_svc=SVC(kernel='poly', C=1.0) 
+
+
+# fit classifier to training set
+poly_svc.fit(X_train,y_train)
+
+
+# make predictions on test set
+y_pred_poly = poly_svc.predict(X_test)
+
+
+# compute and print accuracy score
+print('Model accuracy score with polynomial kernel : {0:0.4f}'. format(accuracy_score(y_test, y_pred_poly)))
+
+# model evalution
+
+
+print('Training set score: {:.4f}'.format(svc.score(X_train, y_train)))
+
+print('Test set score: {:.4f}'.format(svc.score(X_test, y_test)))
+
+
+# Confusion matrix
+
+# Print the Confusion Matrix and slice it into four pieces
+
+from sklearn.metrics import confusion_matrix
+
+cm = confusion_matrix(y_test, y_pred)
+cm
+
+#convert into dataframe
+cm_matrix = pd.DataFrame(data=cm, columns=['Actual Positive:1', 'Actual Negative:0'], 
+                                 index=['Predict Positive:1', 'Predict Negative:0'])
+
+sns.heatmap(cm_matrix, annot=True, fmt='d', cmap='YlGnBu')
+
+
+from sklearn.metrics import classification_report
+
+print(classification_report(y_test, y_pred))
+
+def (c,svm,X_train,X_test,Y_train,Y_test)
