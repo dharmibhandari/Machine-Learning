@@ -1,0 +1,149 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+plt.style.use('ggplot')
+import seaborn as sns
+sns.set()
+import warnings
+warnings.filterwarnings('ignore')
+%matplotlib inline
+
+df = pd.read_csv(r"knn.csv")
+
+df.head()
+
+df.shape
+
+
+df.info()
+
+df.describe()
+
+df.isnull().sum()
+
+df.hist(figsize = (20,20))
+
+
+
+
+from scipy.stats import skew, kurtosis
+
+
+
+for column in df.columns:
+    kurt = kurtosis(df[column])
+    print(f'{column}: {kurt}')
+
+sns.pairplot(df, hue = 'Outcome')
+
+
+plt.figure(figsize=(12,10))  # on this line I just set the size of figure to 12 by 10.
+p=sns.heatmap(df.corr(), annot=True,cmap ='RdYlGn')  # seaborn has very simple solution for heatmap
+
+from sklearn.preprocessing import StandardScaler
+sc_X = StandardScaler()
+
+
+X = df.drop(["Outcome"],axis=1)
+y = df.Outcome
+
+cols = X.columns
+
+pd.DataFrame(sc_X.fit_transform(X))
+
+#importing train_test_split 
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,y,test_size=0.2,random_state=42, )
+
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+
+X_train = scaler.fit_transform(X_train)
+
+X_test = scaler.transform(X_test)
+
+X_train = pd.DataFrame(X_train, columns=[cols])
+X_test = pd.DataFrame(X_test, columns=[cols])
+
+
+from sklearn.neighbors import KNeighborsClassifier
+
+
+model = KNeighborsClassifier(1)
+model.fit(X_train,y_train)
+
+model.score(X_train,y_train)
+
+model.score(X_test,y_test)
+
+
+
+
+
+
+
+# model is overfit
+
+# Try different N
+
+from sklearn.neighbors import KNeighborsClassifier
+
+
+test_scores = []
+train_scores = []
+
+for i in range(1,15):
+
+    model = KNeighborsClassifier(i)
+    model.fit(X_train,y_train)
+
+    train_scores.append(model.score(X_train,y_train))
+    test_scores.append(model.score(X_test,y_test))
+
+plt.figure(figsize=(12,5))
+p = sns.lineplot(range(1,15),train_scores,marker='*',label='Train Score')
+q = sns.lineplot(range(1,15),test_scores,marker='o',label='Test Score')
+
+test_scores
+
+train_scores
+
+#Setup a knn classifier with k neighbors
+knn = KNeighborsClassifier(14)
+
+knn.fit(X_train,y_train)
+
+knn.score(X_train,y_train)
+
+knn.score(X_test,y_test)
+
+y_pred = knn.predict(X_test)
+
+y_pred
+
+from sklearn.metrics import accuracy_score , confusion_matrix
+
+confusion_matrix(y_test,y_pred)
+
+
+accuracy_score(y_test,y_pred)
+
+import pickle
+file = open('my_model.pkl', 'wb')
+
+# dump information to that file
+pickle.dump(knn, file)
+
+import os
+os.getcwd()
+
+model = open('my_model.pkl','rb')
+xyz = pickle.load(model)
+
+y_prediction =xyz.predict(X_test)
+y_prediction
+
+y_pred = knn.predict(X_test)
+y_pred
+
